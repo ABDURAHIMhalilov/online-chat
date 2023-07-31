@@ -13,6 +13,58 @@ function App() {
   const [chatPartner, setChatPartner] = useState('');
   const [users, setUsers] = useState([]);
   const messageRefs = useRef([]);
+  const firstTextRefs = useRef([]);
+
+  // useEffect(() => {
+  //   const firstObservers = firstTextRefs.current.map((ref) => {
+  //     const observer = new IntersectionObserver(entries => {
+  //       if (entries[0].isIntersecting) {
+  //         alert(`Message with ID ${message.id} is visible`)
+  //       }
+  //     });
+  //     observer.observe(ref);
+  //     return observer;
+  //   });
+  
+  //   return () => {
+  //     firstObservers.forEach(observer => observer.disconnect());
+  //   };
+  // }, []);
+  // useEffect(() => {
+  //   const observers = messages.map((message, index) => {
+  //     const observer = new IntersectionObserver(entries => {
+  //       if (entries[0].isIntersecting) {
+  //         handleReadMessage(message.id);
+  //         observer.disconnect();
+  //       }
+  //     });
+  //     observer.observe(messageRefs.current[index]);
+  //     return observer;
+  //   });
+  
+  //   return () => {
+  //     observers.forEach(observer => observer.disconnect());
+  //   };
+  // }, [messages]);
+  useEffect(() => {
+    const observers = messages.map((message, index) => {
+      const observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          // socket.emit('read_message', { id: message.id });
+          alert(18)
+          // handleReadMessage(message.id)
+          observer.disconnect();
+        }
+      });
+      observer.observe(messageRefs.current[index]);
+      return observer;
+    });
+  
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, [messages]);
+  
 
   useEffect(() => {
     // Listen for chat_history event from server
@@ -133,16 +185,16 @@ function App() {
         <button onClick={handleJoinRoom}>Присоединиться к комнате</button>
       </div>
       <ul className="messages">
-        {messages.map((message, index) => (
-          <li key={index} ref={(el) => messageRefs.current[index] = el} data-userid={message.username === username ? 'own' : 'other'}>
-            <p>{message.username}: {message.text} ({new Date(message.timestamp).toLocaleString()})</p>
-            <br />
+      {messages.map((message, index) => (
+  <li key={index} ref={(el) => messageRefs.current[index] = el} data-userid={message.username === username ? 'own' : 'other'}>
+    <p key={message.id} ref={el => firstTextRefs.current[index] = el}>{message.username}: {message.text} ({new Date(message.timestamp).toLocaleString()})</p>
+    <br />
             {/* {message.userID === userID && <p>Read by: {message.readBy.length}</p>}
             {message.userID !== userID && <button onClick={() => handleReadMessage(message.id)}>прочитал</button>} */}
             {message.username === username && <p>Read by: {message.readBy.length}</p>}
             {message.username !== username && <button onClick={() => handleReadMessage(message.id)}>прочитал</button>}
-          </li>
-        ))}
+  </li>
+))}
       </ul>
       <div className="input-container">
         <input
